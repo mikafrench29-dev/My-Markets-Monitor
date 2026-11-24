@@ -1,0 +1,40 @@
+name: Update market data
+
+on:
+  schedule:
+    # Every 30 minutes, 07:00–21:30 UTC, Monday to Friday (covers Asian close, London and New York sessions).
+    # GitHub may run scheduled jobs a few minutes late at busy times.
+    - cron: "*/30 7-21 * * 1-5"
+  workflow_dispatch: {}   # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch data
+        env:
+          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python3 scripts/update_data.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "market-data-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/data.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Update market data $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
