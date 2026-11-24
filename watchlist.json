@@ -1,0 +1,292 @@
+{
+  "_comment": "Single source of truth for the site. The updater reads 'instruments' to know what to fetch; the website reads 'global' and 'regions' to lay out the pages. Edit labels or move items between regions here.",
+  "instruments": {
+    "SPY": {
+      "label": "S&P 500",
+      "proxy": "SPY",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "SPY"
+    },
+    "QQQ": {
+      "label": "Nasdaq 100",
+      "proxy": "QQQ",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "QQQ"
+    },
+    "IWM": {
+      "label": "Russell 2000",
+      "proxy": "IWM",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "IWM"
+    },
+    "UUP": {
+      "label": "US dollar index",
+      "proxy": "UUP",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "UUP"
+    },
+    "EWU": {
+      "label": "UK large caps",
+      "proxy": "EWU",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "EWU"
+    },
+    "FEZ": {
+      "label": "Euro Stoxx 50",
+      "proxy": "FEZ",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "FEZ"
+    },
+    "EWG": {
+      "label": "Germany Equities",
+      "proxy": "EWG",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "EWG"
+    },
+    "EWJ": {
+      "label": "Japan Equities",
+      "proxy": "EWJ",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "EWJ"
+    },
+    "FXI": {
+      "label": "China large caps",
+      "proxy": "FXI",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "FXI"
+    },
+    "EWH": {
+      "label": "Hong Kong Equities",
+      "proxy": "EWH",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "EWH"
+    },
+    "EWA": {
+      "label": "Australia Equities",
+      "proxy": "EWA",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "EWA"
+    },
+    "GLD": {
+      "label": "Gold",
+      "proxy": "GLD",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "GLD"
+    },
+    "GBPUSD": {
+      "label": "GBP/USD",
+      "kind": "fx",
+      "source": "twelvedata",
+      "symbol": "GBP/USD"
+    },
+    "EURGBP": {
+      "label": "EUR/GBP",
+      "kind": "fx",
+      "source": "twelvedata",
+      "symbol": "EUR/GBP"
+    },
+    "EURUSD": {
+      "label": "EUR/USD",
+      "kind": "fx",
+      "source": "twelvedata",
+      "symbol": "EUR/USD"
+    },
+    "USDJPY": {
+      "label": "USD/JPY",
+      "kind": "fx",
+      "source": "twelvedata",
+      "symbol": "USD/JPY"
+    },
+    "AUDUSD": {
+      "label": "AUD/USD",
+      "kind": "fx",
+      "source": "twelvedata",
+      "symbol": "AUD/USD"
+    },
+    "USDCNH": {
+      "label": "USD/CNH",
+      "kind": "fx",
+      "source": "twelvedata",
+      "symbol": "USD/CNH"
+    },
+    "BRENT": {
+      "label": "Brent crude",
+      "unit": "$/bbl",
+      "kind": "commodity",
+      "source": "fred",
+      "series": "DCOILBRENTEU"
+    },
+    "FEDFUNDS": {
+      "label": "Fed funds rate",
+      "kind": "rate",
+      "source": "fred",
+      "series": "DFF"
+    },
+    "UST2Y": {
+      "label": "2y Treasury yield",
+      "kind": "rate",
+      "source": "fred",
+      "series": "DGS2"
+    },
+    "UST10Y": {
+      "label": "10y Treasury yield",
+      "kind": "rate",
+      "source": "fred",
+      "series": "DGS10"
+    },
+    "BANKRATE": {
+      "label": "Bank Rate",
+      "kind": "rate",
+      "source": "boe",
+      "series": "IUDBEDR"
+    },
+    "GILT5Y": {
+      "label": "5y gilt yield",
+      "kind": "rate",
+      "source": "boe",
+      "series": "IUDSNPY"
+    },
+    "GILT10Y": {
+      "label": "10y gilt yield",
+      "kind": "rate",
+      "source": "boe",
+      "series": "IUDMNPY",
+      "fallback": {
+        "source": "fred",
+        "series": "IRLTLT01GBM156N"
+      }
+    },
+    "ECBDFR": {
+      "label": "ECB deposit rate",
+      "kind": "rate",
+      "source": "fred",
+      "series": "ECBDFR"
+    },
+    "DE10Y": {
+      "label": "10y Bund yield",
+      "kind": "rate",
+      "source": "fred",
+      "series": "IRLTLT01DEM156N"
+    },
+    "FR10Y": {
+      "label": "10y French OAT yield",
+      "kind": "rate",
+      "source": "fred",
+      "series": "IRLTLT01FRM156N",
+      "hidden": true
+    },
+    "IT10Y": {
+      "label": "10y Italian BTP yield",
+      "kind": "rate",
+      "source": "fred",
+      "series": "IRLTLT01ITM156N",
+      "hidden": true
+    },
+    "FRDE": {
+      "label": "France–Germany spread",
+      "kind": "spread",
+      "source": "calc",
+      "minus": [
+        "FR10Y",
+        "DE10Y"
+      ]
+    },
+    "ITDE": {
+      "label": "Italy–Germany spread",
+      "kind": "spread",
+      "source": "calc",
+      "minus": [
+        "IT10Y",
+        "DE10Y"
+      ]
+    },
+    "JGB10Y": {
+      "label": "10y JGB yield",
+      "kind": "rate",
+      "source": "fred",
+      "series": "IRLTLT01JPM156N"
+    }
+  },
+  "global": [
+    "BRENT",
+    "GLD"
+  ],
+  "regions": [
+    {
+      "id": "north-america",
+      "name": "North America",
+      "equities": [
+        "SPY",
+        "QQQ",
+        "IWM"
+      ],
+      "macro": [
+        "FEDFUNDS",
+        "UST2Y",
+        "UST10Y",
+        "UUP"
+      ],
+      "blurb": "US equities, the Fed, Treasury yields and the dollar."
+    },
+    {
+      "id": "uk",
+      "name": "United Kingdom",
+      "equities": [
+        "EWU"
+      ],
+      "macro": [
+        "BANKRATE",
+        "GILT5Y",
+        "GILT10Y",
+        "GBPUSD",
+        "EURGBP"
+      ],
+      "blurb": "UK equities, the Bank of England, gilt yields and sterling."
+    },
+    {
+      "id": "eurozone",
+      "name": "Eurozone",
+      "equities": [
+        "FEZ",
+        "EWG"
+      ],
+      "macro": [
+        "ECBDFR",
+        "DE10Y",
+        "FRDE",
+        "ITDE",
+        "EURUSD"
+      ],
+      "blurb": "Eurozone equities, the ECB, Bunds and the France and Italy spreads."
+    },
+    {
+      "id": "asia-pacific",
+      "name": "Asia Pacific",
+      "equities": [
+        "EWJ",
+        "FXI",
+        "EWH",
+        "EWA"
+      ],
+      "macro": [
+        "JGB10Y",
+        "USDJPY",
+        "AUDUSD",
+        "USDCNH"
+      ],
+      "blurb": "Japan, China, Hong Kong and Australia; JGB yields and Asian currencies."
+    }
+  ]
+}

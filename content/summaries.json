@@ -1,0 +1,16 @@
+{
+  "_comment": "Your weekly summaries. Add a new week at the TOP of the 'weeks' list each Friday; older weeks move into the archive automatically. Leave a field as \"\" if you haven't written it yet.",
+  "weeks": [
+    {
+      "week_ending": "2026-11-27",
+      "title": "Your headline for the week goes here",
+      "overview": "Two or three sentences on the biggest theme across all four regions this week.",
+      "regions": {
+        "north-america": { "equities": "", "macro": "" },
+        "uk":            { "equities": "", "macro": "" },
+        "eurozone":      { "equities": "", "macro": "" },
+        "asia-pacific":  { "equities": "", "macro": "" }
+      }
+    }
+  ]
+}
