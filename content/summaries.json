@@ -3,10 +3,10 @@
   "weeks": [
     {
       "week_ending": "2026-11-27",
-      "title": "Your headline for the week goes here",
+      "title": "Nvidia shoots up, what does the bond market say?",
       "overview": "Two or three sentences on the biggest theme across all four regions this week.",
       "regions": {
-        "north-america": { "equities": "", "macro": "" },
+        "north-america": { "equities": "Bonds and stocks are a little too connected in this piece, so it'll be shown in both equities and macro this week.  ", "macro": "" },
         "uk":            { "equities": "", "macro": "" },
         "eurozone":      { "equities": "", "macro": "" },
         "asia-pacific":  { "equities": "", "macro": "" }
