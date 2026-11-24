@@ -166,7 +166,7 @@
 
   function renderNav(route) {
     var current = route.page === "summary" ? "summary" : route.region.id;
-    var links = state.wl.regions.map(function (r) { return [r.id, r.name]; }).concat([["summary", "Weekly summary"]]);
+    var links = state.wl.regions.map(function (r) { return [r.id, r.name]; }).concat([["summary", "Weekly Summary"]]);
     $("#nav").innerHTML = links.map(function (l) {
       return '<a href="#' + l[0] + '"' + (l[0] === current ? ' aria-current="page"' : "") + ">" + esc(l[1]) + "</a>";
     }).join("");
@@ -241,14 +241,14 @@
 
   function summaryPage() {
     var weeks = (state.sums.weeks || []).slice().sort(function (a, b) { return a.week_ending < b.week_ending ? 1 : -1; });
-    if (!weeks.length) return '<section class="page-head"><div><h1>Weekly summary</h1><p class="lede">No summaries yet.</p></div></section>';
+    if (!weeks.length) return '<section class="page-head"><div><h1>Weekly Summary</h1><p class="lede">No summaries yet.</p></div></section>';
     var w = weeks[0];
     var archive = weeks.slice(1).map(function (o) {
       return '<details><summary><span>' + esc(o.title || "Week ending " + fmtDateLong(o.week_ending)) + '</span><span class="meta">' + fmtDateLong(o.week_ending) + "</span></summary>" +
         (o.overview ? '<p style="margin:12px 0 4px;color:var(--muted)">' + esc(o.overview) + "</p>" : "") + weekRegions(o) + "</details>";
     }).join("");
     return '<section class="page-head"><div><div class="issue-line"><span class="dot"></span>Week ending ' + fmtDateLong(w.week_ending, true) + "</div>" +
-      '<h1>Weekly summary</h1><p class="lede">What moved in each region this week, why it moved, and what I expect next.</p></div></section>' +
+      '<h1>Weekly Summary</h1><p class="lede">What moved in each region this week, why it moved, and what I expect next.</p></div></section>' +
       '<section class="lead-view"><div><div class="who"><i>MM</i>The week in brief</div><h2>' + esc(w.title || "This week") + "</h2></div><div>" + text(w.overview) + "</div></section>" +
       weekRegions(w) +
       (archive ? '<section class="archive"><h2>Archive</h2>' + archive + "</section>" : "");
@@ -260,7 +260,7 @@
     var main = $("#view");
     if (route.page === "summary") {
       main.innerHTML = summaryPage();
-      document.title = "Weekly summary · Markets Monitor";
+      document.title = "Weekly Summary · Markets Monitor";
     } else {
       main.innerHTML = regionPage(route);
       renderFeature(route.region.id + "-" + route.desk);
