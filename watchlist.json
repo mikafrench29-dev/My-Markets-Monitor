@@ -224,6 +224,39 @@
       "kind": "rate",
       "source": "fred",
       "series": "IRLTLT01JPM156N"
+    },
+    "USCPI": {
+      "label": "US CPI inflation",
+      "kind": "rate",
+      "source": "fred",
+      "series": "CPIAUCNS",
+      "transform": "yoy",
+      "hidden": true
+    },
+    "JPCPI": {
+      "label": "Japan CPI inflation",
+      "kind": "rate",
+      "source": "oecd",
+      "flows": [
+        "OECD.SDD.TPS,DSD_PRICES_COICOP2018@DF_PRICES_C2018_ALL,",
+        "OECD.SDD.TPS,DSD_PRICES@DF_PRICES_ALL,"
+      ],
+      "key": "JPN.M.N.CPI.PA._T.N.GY",
+      "hidden": true
+    },
+    "USJPCPI": {
+      "label": "US–Japan inflation spread",
+      "kind": "spread",
+      "unit": "pp",
+      "scale": 1,
+      "source": "calc",
+      "minus": [
+        "USCPI",
+        "JPCPI"
+      ],
+      "note": "CPI inflation gap, year on year",
+      "sub": "CPI y/y, monthly",
+      "source_note": "Calculated from US BLS CPI (via FRED) and OECD data"
     }
   },
   "global": [
@@ -290,6 +323,7 @@
       ],
       "macro": [
         "JGB10Y",
+        "USJPCPI",
         "USDJPY",
         "AUDUSD",
         "USDCNH"

@@ -6,6 +6,7 @@ Sources
   - Twelve Data  (ETF proxies, FX pairs)   needs env TWELVE_DATA_API_KEY  (free Basic plan: 8 credits/minute)
   - FRED         (US rates, ECB rate, Brent, OECD 10y yields)   needs env FRED_API_KEY (free)
   - Bank of England database (Bank Rate, gilt yields)   no key
+  - OECD data API (Japan CPI inflation)   no key
 
 Runs with the Python standard library only, so GitHub Actions needs no installs.
 If a source fails, the previous value in data/data.json is kept and marked stale,
@@ -37,6 +38,7 @@ SOURCE_NAMES = {
     "twelvedata": "Twelve Data",
     "fred": "FRED, Federal Reserve Bank of St. Louis",
     "boe": "Bank of England",
+    "oecd": "OECD",
     "calc": "Calculated",
 }
 
@@ -94,11 +96,14 @@ def fetch_twelvedata(symbols):
 
 
 # ---------------------------------------------------------------- FRED
-def fetch_fred(series_id):
+def fetch_fred(series_id, transform=None):
     if not FRED_KEY:
         raise RuntimeError("FRED_API_KEY not set")
-    monthly = series_id.endswith("M156N")
-    start = date.today() - timedelta(days=MONTHLY_LOOKBACK_DAYS if monthly else DAILY_LOOKBACK_DAYS)
+    monthly = series_id.endswith("M156N") or transform == "yoy"
+    days = MONTHLY_LOOKBACK_DAYS if monthly else DAILY_LOOKBACK_DAYS
+    if transform == "yoy":
+        days += 400  # an extra year so every month has a year-earlier value
+    start = date.today() - timedelta(days=days)
     url = "https://api.stlouisfed.org/fred/series/observations?" + urllib.parse.urlencode({
         "series_id": series_id, "api_key": FRED_KEY, "file_type": "json",
         "observation_start": start.isoformat(),
@@ -107,7 +112,53 @@ def fetch_fred(series_id):
     series = [[o["date"], float(o["value"])] for o in obs if o.get("value") not in (".", "", None)]
     if not series:
         raise RuntimeError(f"FRED {series_id}: no observations")
+    if transform == "yoy":
+        series = yoy(series)
+        if not series:
+            raise RuntimeError(f"FRED {series_id}: not enough history for year-on-year")
     return series
+
+
+def yoy(series):
+    """Monthly index levels -> year-on-year % change."""
+    level = {d[:7]: v for d, v in series}
+    out = []
+    for d, v in series:
+        prior = f"{int(d[:4]) - 1}{d[4:7]}"
+        if prior in level and level[prior]:
+            out.append([d, round((v / level[prior] - 1) * 100, 4)])
+    return out
+
+
+# ---------------------------------------------------------------- OECD
+def fetch_oecd(flows, key):
+    """Tries each OECD dataflow in turn and keeps whichever has the most recent data.
+    Monthly periods (2026-10) become first-of-month dates (2026-10-01) to line up with FRED."""
+    start = (date.today() - timedelta(days=MONTHLY_LOOKBACK_DAYS)).strftime("%Y-%m")
+    best, errors = [], []
+    for flow in flows:
+        url = f"https://sdmx.oecd.org/public/rest/data/{flow}/{key}?" + urllib.parse.urlencode({
+            "startPeriod": start, "format": "csvfile",
+        })
+        try:
+            rows = list(csv.DictReader(io.StringIO(http_get(url, timeout=60))))
+        except Exception as e:
+            errors.append(f"{flow}: {e}")
+            continue
+        series = []
+        for r in rows:
+            period, value = (r.get("TIME_PERIOD") or "").strip(), (r.get("OBS_VALUE") or "").strip()
+            if len(period) == 7 and value:
+                try:
+                    series.append([period + "-01", float(value)])
+                except ValueError:
+                    pass
+        series.sort()
+        if series and (not best or series[-1][0] > best[-1][0]):
+            best = series
+    if not best:
+        raise RuntimeError("no data (" + "; ".join(errors) + ")" if errors else "no data")
+    return best
 
 
 # ---------------------------------------------------------------- Bank of England
@@ -168,12 +219,16 @@ def build_entry(key, meta, series, source):
         "history": [[d, round(v, 4)] for d, v in series],
         "stale": False,
     }
+    for extra in ("note", "sub"):
+        if meta.get(extra):
+            entry[extra] = meta[extra]
     return entry
 
 
-def spread(a, b):
+def spread(a, b, scale=100):
+    """a minus b on matching dates. scale=100 gives basis points; scale=1 keeps percentage points."""
     bmap = dict(b)
-    return [[d, round((v - bmap[d]) * 100, 1)] for d, v in a if d in bmap]  # in basis points
+    return [[d, round((v - bmap[d]) * scale, 2)] for d, v in a if d in bmap]
 
 
 def main():
@@ -209,13 +264,22 @@ def main():
         except Exception as e:
             log(f"! Bank of England failed: {e}")
 
+    # OECD
+    for k, m in instruments.items():
+        if m["source"] == "oecd":
+            try:
+                raw[k], used_source[k] = fetch_oecd(m["flows"], m["key"]), "oecd"
+                log(f"  OECD {m['key']}: last {raw[k][-1]}")
+            except Exception as e:
+                log(f"! OECD {m['key']} failed: {e}")
+
     # FRED (plus fallbacks for anything still missing)
     for k, m in instruments.items():
         spec = m if m["source"] == "fred" else (m.get("fallback") if k not in raw else None)
         if not spec or spec.get("source") != "fred":
             continue
         try:
-            raw[k], used_source[k] = fetch_fred(spec["series"]), "fred"
+            raw[k], used_source[k] = fetch_fred(spec["series"], spec.get("transform")), "fred"
             log(f"  FRED {spec['series']}: last {raw[k][-1]}")
         except Exception as e:
             log(f"! FRED {spec['series']} failed: {e}")
@@ -225,7 +289,7 @@ def main():
         if m["source"] == "calc":
             a, b = m["minus"]
             if a in raw and b in raw:
-                s = spread(raw[a], raw[b])
+                s = spread(raw[a], raw[b], m.get("scale", 100))
                 if s:
                     raw[k], used_source[k] = s, "calc"
 
@@ -235,7 +299,7 @@ def main():
         if k in raw and raw[k]:
             result[k] = build_entry(k, m, raw[k], used_source[k])
             if m["source"] == "calc":
-                result[k]["source"] = "Calculated from OECD data via FRED"
+                result[k]["source"] = m.get("source_note", "Calculated from OECD data via FRED")
         elif k in previous.get("instruments", {}):
             result[k] = dict(previous["instruments"][k], stale=True)
             log(f"! {k}: kept previous value (stale)")

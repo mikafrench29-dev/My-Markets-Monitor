@@ -29,14 +29,14 @@
     v = v == null ? inst.last : v;
     switch (inst.kind) {
       case "rate": return v.toFixed(2) + "%";
-      case "spread": return Math.round(v) + " bp";
+      case "spread": return inst.unit === "pp" ? signed(v, 1).replace("+", "") + " pp" : Math.round(v) + " bp";
       case "fx": return v.toFixed(v >= 20 ? 2 : 4);
       default: return "$" + v.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
   }
   function isRate(inst) { return inst.kind === "rate" || inst.kind === "spread"; }
   function fmtChange(inst) {
-    if (isRate(inst)) return signed(inst.change, 1) + " bp";
+    if (isRate(inst)) return inst.unit === "pp" ? signed(inst.change, 1) + " pp" : signed(inst.change, 1) + " bp";
     return inst.changePct == null ? "" : signed(inst.changePct, 2) + "%";
   }
   function dirOf(inst) {
@@ -58,6 +58,7 @@
   function subLine(inst) {
     var bits = [];
     if (inst.proxy) bits.push(esc(inst.proxy) + " (ETF proxy)");
+    else if (inst.note) bits.push(esc(inst.note));
     else if (inst.kind === "spread") bits.push("10y yield gap");
     else if (inst.unit && inst.unit !== "%" && inst.unit !== "bp") bits.push(esc(inst.unit));
     bits.push("as of " + fmtDateLong(inst.asof));
@@ -189,7 +190,7 @@
     if (!state.selected[id] || keys.indexOf(state.selected[id]) < 0) state.selected[id] = keys[0];
     var rows = keys.map(function (k) {
       var i = inst(k);
-      var sub = i.proxy ? esc(i.proxy) : esc((i.kind === "spread" ? "10y, " : "") + (i.freq === "monthly" ? "monthly average" : "daily"));
+      var sub = i.proxy ? esc(i.proxy) : i.sub ? esc(i.sub) : esc((i.kind === "spread" ? "10y, " : "") + (i.freq === "monthly" ? "monthly average" : "daily"));
       sub = sub.charAt(0).toUpperCase() + sub.slice(1);
       return '<li class="row" role="option" tabindex="0" data-panel="' + id + '" data-key="' + k + '" aria-selected="' + (k === state.selected[id]) + '">' +
         '<div><div class="row-label">' + esc(i.label) + (i.stale ? '<span class="tag stale">Stale</span>' : "") + '</div><div class="row-sub">' + sub + "</div></div>" +

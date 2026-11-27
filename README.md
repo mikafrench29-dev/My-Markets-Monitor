@@ -11,7 +11,7 @@ A dashboard tracking equities, government bond yields, central bank rates and FX
 |---|---|
 | `watchlist.json` | What to track and which region it belongs to. Edit labels or move items here. |
 | `content/summaries.json` | Your weekly summaries: a headline, an overview, and an equities and a Fixed Income & Macro paragraph per region. |
-| `scripts/update_data.py` | Fetches the data (Twelve Data, FRED, Bank of England). |
+| `scripts/update_data.py` | Fetches the data (Twelve Data, FRED, Bank of England, OECD). |
 | `.github/workflows/update-data.yml` | Runs the updater on a schedule. |
 | `data/data.json` | The data the site displays. It currently holds **sample data** until the updater first runs. |
 | `index.html`, `assets/` | The website itself. |
@@ -57,5 +57,6 @@ To regenerate sample data: `python3 scripts/make_sample_data.py`.
 - **UK yields:** the Bank of England publishes daily gilt par yields at 5, 10 and 20 years, so the site shows the 5y gilt rather than the 2y. If the BoE ever blocks the automated request, the 10y gilt falls back to a monthly series from FRED.
 - **Eurozone and Japan 10y yields are monthly averages** (OECD data via FRED), so the France–Germany and Italy–Germany spreads are monthly too. For daily data later, the Bundesbank, Banque de France and Japan's Ministry of Finance publish daily yields.
 - **Prices update about every 30 minutes**, not tick by tick. Truly live data needs a paid plan and a different setup.
+- **US–Japan inflation spread:** US CPI year on year (BLS, via FRED) minus Japan CPI year on year (OECD data API, no key). Both are monthly, and the spread uses the latest month both have published, so it can trail the US release by a month.
 - **Licensing:** Twelve Data's Basic plan is described as for personal, internal use. Check their terms (or ask them) before promoting the site publicly. FRED and the Bank of England require attribution, which is in the site footer.
 - If any single source fails, the site keeps its last good value and marks it "Stale" rather than going blank.
