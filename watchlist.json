@@ -8,6 +8,13 @@
       "source": "twelvedata",
       "symbol": "SPY"
     },
+    "RSP": {
+      "label": "S&P 500 Equal Weight",
+      "proxy": "RSP",
+      "kind": "price",
+      "source": "twelvedata",
+      "symbol": "RSP"
+    },
     "QQQ": {
       "label": "Nasdaq 100",
       "proxy": "QQQ",
@@ -229,6 +236,7 @@
       "name": "North America",
       "equities": [
         "SPY",
+        "RSP",
         "QQQ",
         "IWM"
       ],
